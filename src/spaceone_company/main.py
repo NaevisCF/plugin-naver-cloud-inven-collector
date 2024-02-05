@@ -1,6 +1,6 @@
 from typing import Generator
 from spaceone.inventory.plugin.collector.lib.server import CollectorPluginServer
-from spaceone_company.manager.server_manager import ServerManager
+from spaceone_company.manager.compute.server_manager import ServerManager
 
 app = CollectorPluginServer()
 

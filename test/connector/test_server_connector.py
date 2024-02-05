@@ -1,9 +1,9 @@
 import os
 import logging
 from spaceone.core import utils
-from spaceone.tester import TestCase, print_json
+from spaceone.tester import TestCase
 
-from spaceone_company.connector.server_connector import ServerConnector
+from spaceone_company.connector.compute.server_connector import ServerConnector
 
 _LOGGER = logging.getLogger(__name__)
 
