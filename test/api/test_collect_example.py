@@ -27,3 +27,4 @@ class TestCollectExample(TestCase):
 
         for res in res_stream:
             print_json(res)
+
