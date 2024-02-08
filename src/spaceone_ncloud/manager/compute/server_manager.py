@@ -1,7 +1,7 @@
 import logging
 from spaceone.core.manager import BaseManager
 from spaceone.inventory.plugin.collector.lib import *
-from spaceone_company.connector.compute.server_connector import ServerConnector
+from spaceone_ncloud.connector.compute.server_connector import ServerConnector
 
 _LOGGER = logging.getLogger("cloudforet")
 
