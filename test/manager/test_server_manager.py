@@ -1,11 +1,8 @@
 import os
 import logging
-import schematics
 from spaceone.core import utils
-from spaceone.tester import TestCase, print_json
-
-from spaceone_company.connector.server_connector import ServerConnector
-from spaceone_company.manager.server_manager import ServerManager
+from spaceone.tester import TestCase
+from inventory.manager.compute.server_manager import ServerManager
 
 _LOGGER = logging.getLogger(__name__)
 
