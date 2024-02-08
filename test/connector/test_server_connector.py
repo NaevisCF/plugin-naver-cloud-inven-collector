@@ -3,7 +3,7 @@ import logging
 from spaceone.core import utils
 from spaceone.tester import TestCase
 
-from spaceone_ncloud.connector.compute.server_connector import ServerConnector
+from inventory.connector.compute.server_connector import ServerConnector
 
 _LOGGER = logging.getLogger(__name__)
 

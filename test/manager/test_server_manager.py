@@ -2,7 +2,7 @@ import os
 import logging
 from spaceone.core import utils
 from spaceone.tester import TestCase
-from spaceone_ncloud.manager.compute.server_manager import ServerManager
+from inventory.manager.compute.server_manager import ServerManager
 
 _LOGGER = logging.getLogger(__name__)
 

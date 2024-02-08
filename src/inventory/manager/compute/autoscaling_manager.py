@@ -1,7 +1,7 @@
 import logging
 from spaceone.core.manager import BaseManager
 from spaceone.inventory.plugin.collector.lib import *
-from spaceone_ncloud.connector.compute.autoscaling_connector import AutoscalingConnector
+from inventory.connector.compute.autoscaling_connector import AutoscalingConnector
 
 _LOGGER = logging.getLogger("cloudforet")
 
