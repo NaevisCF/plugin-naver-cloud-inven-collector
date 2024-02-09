@@ -15,10 +15,10 @@ class ServerManager(BaseManager):
         self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/compute/server.yaml"
 
-    def collect_resources(self, options, secret_data, schema):
+    def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data, schema)
-            yield from self.collect_cloud_service(options, secret_data, schema)
+            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
                 error=e,
@@ -27,7 +27,7 @@ class ServerManager(BaseManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data, schema):
+    def collect_cloud_service_type(self, options, secret_data):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -43,7 +43,7 @@ class ServerManager(BaseManager):
             resource_type="inventory.CloudServiceType",
         )
 
-    def collect_cloud_service(self, options, secret_data, schema):
+    def collect_cloud_service(self, options, secret_data):
         server_connector = ServerConnector(secret_data=secret_data)
         server_instances = server_connector.list_server_instance()
         for server_instance in server_instances:

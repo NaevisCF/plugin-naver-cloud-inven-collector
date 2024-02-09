@@ -15,10 +15,10 @@ class AutoscalingManager(BaseManager):
         self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/compute/autoscaling.yaml"
 
-    def collect_resources(self, options, secret_data, schema):
+    def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data, schema)
-            yield from self.collect_cloud_service(options, secret_data, schema)
+            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
                 error=e,
@@ -27,7 +27,7 @@ class AutoscalingManager(BaseManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data, schema):
+    def collect_cloud_service_type(self, options, secret_data):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -43,7 +43,7 @@ class AutoscalingManager(BaseManager):
             resource_type="inventory.CloudServiceType",
         )
 
-    def collect_cloud_service(self, options, secret_data, schema):
+    def collect_cloud_service(self, options, secret_data):
         autoscaling_connector = AutoscalingConnector(secret_data=secret_data)
         autoscaling_groups = autoscaling_connector.list_autoscaling_group()
         activity_log_list = autoscaling_connector.list_autoscaling_activity_log()
