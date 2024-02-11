@@ -20,7 +20,7 @@ class TestCollectExample(TestCase):
 
     def test_collect(self):
         options = {
-            "cloud_service_types": ["AutoscalingManager"]
+            "cloud_service": "Server"
         }
         secret_data = self.secrets
         params = {"options": options, "secret_data": secret_data}
@@ -29,4 +29,3 @@ class TestCollectExample(TestCase):
 
         for res in res_stream:
             print_json(res)
-

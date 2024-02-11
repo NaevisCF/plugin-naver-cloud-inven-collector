@@ -3,6 +3,20 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+CLOUD_SERVICE_MANAGER_MAP = {
+    'Server': 'ServerManager',
+    'LoadBalancer': 'LoadBalancerManager',
+    'Autoscaling': 'AutoscalingManager',
+    'CDN': 'CdnManager',
+    'CloudDB': 'CloudDBManager',
+    'VPC_Server': 'VpcServerManager',
+    'Vpc': 'VpcManager',
+    'VPC_Autoscaling': 'VpcAutoscalingManager',
+    'VPC_LoadBalancer': 'VpcLoadBalancerManager',
+    'ObjectStorage': 'ObjectStorageManager',
+    'ArchiveStorage': 'ArchiveStorageManager'
+}
+
 
 class CollectorService:
     def __init__(self):
@@ -11,11 +25,9 @@ class CollectorService:
     def collect(self, params):
         options = params.get("options", {})
         secret_data = params.get("secret_data", {})
-        cloud_service_types = options.get("cloud_service_types", [])
-
-        for execute_manager in cloud_service_types:
-            manager_instance = self._get_manager_instance(execute_manager)
-            return manager_instance.collect_resources(options, secret_data)
+        cloud_service = options.get("cloud_service", str)
+        manager_instance = self._get_manager_instance(CLOUD_SERVICE_MANAGER_MAP[cloud_service])
+        return manager_instance.collect_resources(options, secret_data)
 
     @staticmethod
     def _get_manager_instance(name_or_object: [str, object], **kwargs):

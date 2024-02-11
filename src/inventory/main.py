@@ -1,6 +1,5 @@
 from typing import Generator
 from spaceone.inventory.plugin.collector.lib.server import CollectorPluginServer
-from inventory.manager.compute.server_manager import ServerManager
 from inventory.service.collector_service import CollectorService
 
 app = CollectorPluginServer()
@@ -8,7 +7,6 @@ app = CollectorPluginServer()
 
 @app.route('Collector.init')
 def collector_init(params: dict) -> dict:
-
     return {"metadata": { "options_schema": {}}}
 
 
@@ -20,16 +18,8 @@ def collector_verify(params: dict) -> None:
 
 @app.route('Collector.collect')
 def collector_collect(params: dict) -> Generator[dict, None, None]:
-
-    # options = params["options"]
-    # secret_data = params["secret_data"]
-    # schema = params.get("schema")
-    #
-    # server_mgr = ServerManager()
-    # return server_mgr.collect_resources(options, secret_data)
-
     service = CollectorService()
-    return service.collect(params=params)
+    return service.collect(params)
 
 
 @app.route('Job.get_tasks')
