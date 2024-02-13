@@ -61,6 +61,7 @@ class AutoscalingManager(BaseManager):
                 launch_configuration_list, launch_configuration_name)
 
             autoscaling_data = {
+                "autoscaling_group_name": autoscaling_group_name,
                 'launched_at': autoscaling_group.create_date,
                 'default_cooldown': autoscaling_group.default_cooldown,
                 'desired_capacity': autoscaling_group.desired_capacity,

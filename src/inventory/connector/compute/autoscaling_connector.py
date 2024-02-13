@@ -15,10 +15,10 @@ class AutoscalingConnector(BaseConnector):
         self.set_connection(kwargs['secret_data'])
 
     def set_connection(self, secret_data):
-        configuration_server = ncloud_autoscaling.Configuration()
-        configuration_server.access_key = secret_data['ncloud_access_key_id']
-        configuration_server.secret_key = secret_data['ncloud_secret_key']
-        self.autoscaling_client = ncloud_autoscaling.V2Api(ncloud_autoscaling.ApiClient(configuration_server))
+        configuration_autoscaling = ncloud_autoscaling.Configuration()
+        configuration_autoscaling.access_key = secret_data['ncloud_access_key_id']
+        configuration_autoscaling.secret_key = secret_data['ncloud_secret_key']
+        self.autoscaling_client = ncloud_autoscaling.V2Api(ncloud_autoscaling.ApiClient(configuration_autoscaling))
 
     def list_autoscaling_group(self):
 
