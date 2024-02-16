@@ -4,15 +4,16 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 CLOUD_SERVICE_MANAGER_MAP = {
-    'Server': 'ServerManager',
+    'Server': 'CloudDBManager',
     'LoadBalancer': 'LoadBalancerManager',
     'Autoscaling': 'AutoscalingManager',
-    'CDN': 'CdnManager',
+    'CdnPlus': 'CdnPlusManager',
+    'CdnGlobal': 'CdnGlobalManager',
     'CloudDB': 'CloudDBManager',
-    'VPC_Server': 'VpcServerManager',
+    'Vpc_Server': 'VpcServerManager',
     'Vpc': 'VpcManager',
-    'VPC_Autoscaling': 'VpcAutoscalingManager',
-    'VPC_LoadBalancer': 'VpcLoadBalancerManager',
+    'Vpc_Autoscaling': 'VpcAutoscalingManager',
+    'Vpc_LoadBalancer': 'VpcLoadBalancerManager',
     'ObjectStorage': 'ObjectStorageManager',
     'ArchiveStorage': 'ArchiveStorageManager'
 }

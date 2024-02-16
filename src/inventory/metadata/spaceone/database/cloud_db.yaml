@@ -1,6 +1,6 @@
 search:
   fields:
-    - Autoscaling Group Name: data.autoscaling_group_name
+    - Server Instance No: data.server_instance_no
     - Status: data.server_instance_status_name
 table:
   sort:
