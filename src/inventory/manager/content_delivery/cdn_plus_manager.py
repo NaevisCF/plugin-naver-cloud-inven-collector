@@ -56,8 +56,8 @@ class CdnPlusManager(BaseManager):
 
             instance_data = {
                 'create_date': instance.create_date,
-                'cdn_instance_status': instance.cdn_instance_status.code,
-                'cdn_instance_operation': instance.cdn_instance_operation.code,
+                'cdn_instance_status': instance.cdn_instance_status.code_name,
+                'cdn_instance_operation': instance.cdn_instance_operation.code_name,
                 'cdn_instance_status_name': instance.cdn_instance_status_name,
                 'last_modified_date': instance.last_modified_date,
                 'service_name': instance.service_name,
@@ -70,8 +70,6 @@ class CdnPlusManager(BaseManager):
 
             cloud_service = make_cloud_service(
                 name=instance_name,
-                instance_type=instance.server_instance_type.code,
-                region_code=instance.region.region_name,
                 cloud_service_type=self.cloud_service_type,
                 cloud_service_group=self.cloud_service_group,
                 provider=self.provider,
