@@ -45,7 +45,7 @@ class CloudDBManager(BaseManager):
 
     def collect_cloud_service(self, options, secret_data):
         cloud_db_connector = CloudDBConnector(secret_data=secret_data)
-        cloud_db_instances = cloud_db_connector.list_cloud_db_instance(options.db_kind_code)
+        cloud_db_instances = cloud_db_connector.list_cloud_db_instance(options.get("db_kind_code", {}))
 
         for instance in cloud_db_instances:
             cloud_db_service_name = instance.cloud_db_service_name

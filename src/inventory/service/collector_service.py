@@ -4,7 +4,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 CLOUD_SERVICE_MANAGER_MAP = {
-    'Server': 'CloudDBManager',
+    'Server': 'ServerManager',
     'LoadBalancer': 'LoadBalancerManager',
     'Autoscaling': 'AutoscalingManager',
     'CdnPlus': 'CdnPlusManager',
