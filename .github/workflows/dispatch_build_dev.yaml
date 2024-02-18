@@ -5,6 +5,7 @@ on:
 
 permissions:
   id-token: write
+  checks: read
 
 env:
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
