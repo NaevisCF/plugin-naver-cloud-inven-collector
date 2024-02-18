@@ -17,7 +17,7 @@ ARG CACHEBUST=1
 WORKDIR ${SRC_DIR}
 RUN rm -rf /tmp/*
 
-#RUN python3 setup.py install
+RUN python3 setup.py install
 
 EXPOSE ${SPACEONE_PORT}
 
