@@ -3,6 +3,9 @@ name: "[Dispatch] Build Dev"
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+
 env:
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
