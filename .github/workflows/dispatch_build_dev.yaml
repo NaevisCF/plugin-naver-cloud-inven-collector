@@ -3,18 +3,21 @@ name: "[Dispatch] Build Dev"
 on:
   workflow_dispatch:
 
+permissions:
+  checks: read
+
 env:
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   versioning:
     runs-on: ubuntu-latest
-    permissions:
-      checks: read
     outputs:
       version: ${{ steps.versioning.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: get current date
         run: |
           sudo ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
@@ -40,7 +43,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v3
           with:
-            token: ${{ secrets.PAT_TOKEN }}
+            token: ${{ secrets.GITHUB_TOKEN }}
   
         - name: get service name
           run: |
