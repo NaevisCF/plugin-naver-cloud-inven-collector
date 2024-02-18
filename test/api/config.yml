@@ -1,5 +1,0 @@
-GLOBAL:
-  SERVICE: inventory
-  ENDPOINTS:
-    inventory:
-      spaceone_company: localhost:50051

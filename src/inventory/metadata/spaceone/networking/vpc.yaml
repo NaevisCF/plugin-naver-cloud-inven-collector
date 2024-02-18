@@ -1,0 +1,21 @@
+search:
+  fields:
+    - Server Instance No: data.server_instance_no
+    - Status: data.server_instance_status_name
+table:
+  sort:
+    key: data.server_instance_no
+    desc: false
+  fields:
+    - Server Instance No: data.server_instance_no
+    - Status: data.server_instance_status_name
+    - Server Image: data.server_image_name
+    - Server Name: data.server_name
+tabs.0:
+  name: Details
+  type: item
+  fields:
+    - Server Instance No: data.server_instance_no
+    - Status: data.server_instance_status_name
+    - Server Image: data.server_image_name
+    - Server Name: data.server_name

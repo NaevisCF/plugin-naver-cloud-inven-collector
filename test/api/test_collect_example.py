@@ -19,7 +19,9 @@ class TestCollectExample(TestCase):
         print_json(v_info)
 
     def test_collect(self):
-        options = {}
+        options = {
+            "cloud_service": "Server"
+        }
         secret_data = self.secrets
         params = {"options": options, "secret_data": secret_data}
 
