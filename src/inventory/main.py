@@ -7,12 +7,11 @@ app = CollectorPluginServer()
 
 @app.route('Collector.init')
 def collector_init(params: dict) -> dict:
-    return {"metadata": { "options_schema": {}}}
+    return _create_init_metadata()
 
 
 @app.route('Collector.verify')
 def collector_verify(params: dict) -> None:
-
     pass
 
 
@@ -39,4 +38,40 @@ def job_get_tasks(params: dict) -> dict:
         }
 
     """
-    pass
+
+    tasks = []
+    services = ['VServer']
+    options = params.get('options', {})
+
+    tasks.extend(_add_cloud_service_type_tasks(services))
+
+    return {"tasks": tasks}
+
+
+def _add_cloud_service_type_tasks(services: list) -> list:
+    return [
+        _make_task_wrapper(
+            resource_type="inventory.CloudServiceType", services=services
+        )
+    ]
+
+
+def _make_task_wrapper(**kwargs) -> dict:
+    task_options = {"task_options": {}}
+    for key, value in kwargs.items():
+        task_options["task_options"][key] = value
+    return task_options
+
+
+def _create_init_metadata():
+    return {
+        "metadata": {
+            "supported_resource_type": [
+                "inventory.CloudService",
+                "inventory.CloudServiceType",
+                "inventory.Region",
+                "inventory.ErrorResource",
+            ],
+            "options_schema": {},
+        }
+    }

@@ -1,0 +1,23 @@
+search:
+  fields:
+    - Server Instance No: data.compute.server_instance_no
+    - Status: data.compute.server_instance_status_name
+table:
+  sort:
+    key: data.compute.server_instance_no
+    desc: false
+  fields:
+    - Server Instance No: data.compute.server_instance_no
+    - Status: data.compute.server_instance_status_name
+    - Server Name: data.compute.server_name
+    - Server Description: data.compute.server_description
+    - Server Instance Type: data.compute.server_instance_type
+tabs.0:
+  name: Details
+  type: item
+  fields:
+    - Server Instance No: data.compute.server_instance_no
+    - Status: data.compute.server_instance_status_name
+    - Server Name: data.compute.server_name
+    - Server Description: data.compute.server_description
+    - Server Instance Type: data.compute.server_instance_type
