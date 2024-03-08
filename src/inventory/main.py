@@ -40,7 +40,7 @@ def job_get_tasks(params: dict) -> dict:
     """
 
     tasks = []
-    services = ['VServer']
+    services = ['VServerManager']
     options = params.get('options', {})
 
     tasks.extend(_add_cloud_service_type_tasks(services))
