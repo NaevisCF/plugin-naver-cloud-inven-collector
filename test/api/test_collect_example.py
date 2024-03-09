@@ -1,5 +1,7 @@
 import os
 import logging
+
+from google.protobuf.json_format import MessageToDict
 from spaceone.core import utils
 from spaceone.tester import TestCase, print_json
 
@@ -18,14 +20,45 @@ class TestCollectExample(TestCase):
         v_info = self.inventory.Collector.init({"options": {}})
         print_json(v_info)
 
-    def test_collect(self):
-        options = {
-            "cloud_service": "Server"
-        }
+    def test_full_collect(self):
         secret_data = self.secrets
-        params = {"options": options, "secret_data": secret_data}
 
-        res_stream = self.inventory.Collector.collect(params)
+        print(f"Action 1: Generate Tasks!")
+        print(f"=================== start get_tasks! ==========================")
+        options = {
+            "service_filter": None,
+            "region_filter": None,
+        }
+        v_info = self.inventory.Job.get_tasks(
+            {"options": options, "secret_data": secret_data}
+        )
+        print(f"=================== end get_tasks! ==========================")
+        all_tasks = MessageToDict(v_info, preserving_proto_field_name=True)
 
-        for res in res_stream:
-            print_json(res)
+        print(f"Action 2: Collect Resources!")
+        print(
+            f"=================== start collect_resources! =========================="
+        )
+        for task in all_tasks.get("tasks", []):
+            task_options = task["task_options"]
+            filter = {}
+            params = {
+                "options": task_options,
+                "secret_data": secret_data,
+                "filter": filter,
+            }
+            res_stream = self.inventory.Collector.collect(params)
+            for res in res_stream:
+                print_json(res)
+        print(f"=================== end collect_resources! ==========================")
+
+    def test_get_tasks(self):
+        print(f"=================== start get_tasks! ==========================")
+        options = {
+            "service_filter": "VServer"
+        }
+        v_info = self.inventory.Job.get_tasks(
+            {"options": options, "secret_data": self.secrets}
+        )
+        print_json(v_info)
+
