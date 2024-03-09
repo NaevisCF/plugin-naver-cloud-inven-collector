@@ -27,9 +27,16 @@ class CollectorService:
     def collect(self, params):
         options = params.get("options", {})
         secret_data = params.get("secret_data", {})
-        cloud_service = options.get("cloud_service", str)
-        manager_instance = self._get_manager_instance(CLOUD_SERVICE_MANAGER_MAP[cloud_service])
-        return manager_instance.collect_resources(options, secret_data)
+
+        resource_type = options.get("resource_type")
+
+        if resource_type == "inventory.CloudService":
+            service = options.get("service")
+            manager_instance = self._get_manager_instance(CLOUD_SERVICE_MANAGER_MAP[service])
+            return manager_instance.collect_resources(options, secret_data)
+
+        else:
+            raise ValueError("Invalid resource type!")
 
     @staticmethod
     def _get_manager_instance(name_or_object: [str, object], **kwargs):

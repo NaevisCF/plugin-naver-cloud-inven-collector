@@ -40,18 +40,18 @@ def job_get_tasks(params: dict) -> dict:
     """
 
     tasks = []
-    services = ['VServerManager']
-    options = params.get('options', {})
+    options = params.get("options", {})
+    service = options.get("service_filter")
 
-    tasks.extend(_add_cloud_service_type_tasks(services))
+    tasks.extend(_add_cloud_service_tasks(service))
 
     return {"tasks": tasks}
 
 
-def _add_cloud_service_type_tasks(services: list) -> list:
+def _add_cloud_service_tasks(service: str) -> list:
     return [
         _make_task_wrapper(
-            resource_type="inventory.CloudServiceType", services=services
+            resource_type="inventory.CloudService", service=service
         )
     ]
 
@@ -69,7 +69,6 @@ def _create_init_metadata():
             "supported_resource_type": [
                 "inventory.CloudService",
                 "inventory.CloudServiceType",
-                "inventory.Region",
                 "inventory.ErrorResource",
             ],
             "options_schema": {},
