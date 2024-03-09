@@ -11,7 +11,7 @@ CLOUD_SERVICE_MANAGER_MAP = {
     'CdnPlus': 'CdnPlusManager',
     'CdnGlobal': 'CdnGlobalManager',
     # 'CloudDB': 'CloudDBManager',
-    'Vpc': 'VpcManager',
+    'VPC': 'VpcManager',
 }
 
 
