@@ -17,8 +17,16 @@ def collector_verify(params: dict) -> None:
 
 @app.route('Collector.collect')
 def collector_collect(params: dict) -> Generator[dict, None, None]:
-    service = CollectorService()
-    return service.collect(params)
+    options = params.get("options", {})
+    secret_data = params.get("secret_data", {})
+    resource_type = options.get("resource_type")
+
+    if resource_type == "inventory.CloudService":
+        services = options.get("services")
+        for service in services:
+            results = CollectorService().collect(options, secret_data, service)
+            for result in results:
+                yield result
 
 
 @app.route('Job.get_tasks')
@@ -40,18 +48,38 @@ def job_get_tasks(params: dict) -> dict:
     """
 
     tasks = []
-    services = ['VServerManager']
-    options = params.get('options', {})
+    options = params.get("options", {})
+    services = _set_service_filter(options)
 
-    tasks.extend(_add_cloud_service_type_tasks(services))
+    tasks.extend(_add_cloud_service_tasks(services))
 
     return {"tasks": tasks}
 
 
-def _add_cloud_service_type_tasks(services: list) -> list:
+def _set_service_filter(options):
+    available_services = CollectorService.get_service_names()
+
+    if service_filter := options.get("service_filter"):
+        _validate_service_filter(service_filter, available_services)
+        return service_filter
+    else:
+        return available_services
+
+
+def _validate_service_filter(service_filter, available_services):
+    if not isinstance(service_filter, list):
+        raise ValueError(
+            f"Services input is supposed to be a list type! Your input is {service_filter}."
+        )
+    for each_service in service_filter:
+        if each_service not in available_services:
+            raise ValueError("Not a valid service!")
+
+
+def _add_cloud_service_tasks(services: list) -> list:
     return [
         _make_task_wrapper(
-            resource_type="inventory.CloudServiceType", services=services
+            resource_type="inventory.CloudService", services=services
         )
     ]
 
@@ -69,7 +97,6 @@ def _create_init_metadata():
             "supported_resource_type": [
                 "inventory.CloudService",
                 "inventory.CloudServiceType",
-                "inventory.Region",
                 "inventory.ErrorResource",
             ],
             "options_schema": {},
