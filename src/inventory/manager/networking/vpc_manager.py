@@ -101,7 +101,7 @@ class VpcManager(BaseManager):
                     'usage_type': subnet.usage_type.code,
                     'network_acl_no': subnet.network_acl_no,
                 }
-            subnet_data_list.append(subnet)
+                subnet_data_list.append(subnet)
 
         return subnet_data_list
 
@@ -119,7 +119,7 @@ class VpcManager(BaseManager):
                     'route_table_description': route_table.route_table_description,
 
                 }
-            route_table_data_list.append(route_table)
+                route_table_data_list.append(route_table)
 
         return route_table_data_list
 
@@ -135,7 +135,7 @@ class VpcManager(BaseManager):
                     'network_acl_description': network_acl.network_acl_description,
                     'is_default': network_acl.is_default,
                 }
-            network_acl_data_list.append(network_acl)
+                network_acl_data_list.append(network_acl)
 
         return network_acl_data_list
 
@@ -154,7 +154,7 @@ class VpcManager(BaseManager):
                     'nat_gateway_description': nat_gateway.nat_gateway_description
 
                 }
-            nat_gateway_instance_data_list.append(nat_gateway)
+                nat_gateway_instance_data_list.append(nat_gateway)
 
         return nat_gateway_instance_data_list
 
@@ -183,6 +183,6 @@ class VpcManager(BaseManager):
                     'is_between_accounts': vpc_peering.is_between_accounts,
                     'reverse_vpc_peering_instance_no': vpc_peering.reverse_vpc_peering_instance_no,
                 }
-            vpc_peering_data_list.append(vpc_peering)
+                vpc_peering_data_list.append(vpc_peering)
 
         return vpc_peering_data_list
