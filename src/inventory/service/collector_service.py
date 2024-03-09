@@ -10,13 +10,8 @@ CLOUD_SERVICE_MANAGER_MAP = {
     'Autoscaling': 'AutoscalingManager',
     'CdnPlus': 'CdnPlusManager',
     'CdnGlobal': 'CdnGlobalManager',
-    'CloudDB': 'CloudDBManager',
-    'Vpc_Server': 'VpcServerManager',
+    # 'CloudDB': 'CloudDBManager',
     'Vpc': 'VpcManager',
-    'Vpc_Autoscaling': 'VpcAutoscalingManager',
-    'Vpc_LoadBalancer': 'VpcLoadBalancerManager',
-    'ObjectStorage': 'ObjectStorageManager',
-    'ArchiveStorage': 'ArchiveStorageManager'
 }
 
 
@@ -24,19 +19,17 @@ class CollectorService:
     def __init__(self):
         self.execute_managers = []
 
-    def collect(self, params):
-        options = params.get("options", {})
-        secret_data = params.get("secret_data", {})
+    def collect(self, options, secret_data, service):
 
-        resource_type = options.get("resource_type")
+        manager_instance = self._get_manager_instance(CLOUD_SERVICE_MANAGER_MAP[service])
+        return manager_instance.collect_resources(options, secret_data)
 
-        if resource_type == "inventory.CloudService":
-            service = options.get("service")
-            manager_instance = self._get_manager_instance(CLOUD_SERVICE_MANAGER_MAP[service])
-            return manager_instance.collect_resources(options, secret_data)
-
-        else:
-            raise ValueError("Invalid resource type!")
+    @staticmethod
+    def get_service_names():
+        service_names = []
+        for service in CLOUD_SERVICE_MANAGER_MAP:
+            service_names.append(service)
+        return service_names
 
     @staticmethod
     def _get_manager_instance(name_or_object: [str, object], **kwargs):
