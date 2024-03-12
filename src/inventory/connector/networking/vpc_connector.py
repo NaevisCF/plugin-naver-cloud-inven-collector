@@ -53,7 +53,6 @@ class VpcConnector(BaseConnector):
 
         try:
             api_response = self.vpc_client.get_network_acl_list(get_network_acl_list_request)
-            print(api_response)
             for instance in api_response.network_acl_list:
                 network_acl_list.append(instance)
 
@@ -68,7 +67,6 @@ class VpcConnector(BaseConnector):
 
         try:
             api_response = self.vpc_client.get_nat_gateway_instance_list(get_nat_gateway_instance_list_request)
-            print(api_response)
             for instance in api_response.nat_gateway_instance_list:
                 nat_gateway_instance_list.append(instance)
 
@@ -83,7 +81,6 @@ class VpcConnector(BaseConnector):
 
         try:
             api_response = self.vpc_client.get_vpc_peering_instance_list(get_vpc_peering_instance_list_request)
-            print(api_response)
             for instance in api_response.vpc_peering_instance_list:
                 vpc_peering_instance_list.append(instance)
 
@@ -98,7 +95,6 @@ class VpcConnector(BaseConnector):
 
         try:
             api_response = self.vpc_client.get_route_table_list(get_route_table_list_request)
-            print(api_response)
             for instance in api_response.route_table_list:
                 route_table_list.append(instance)
 
