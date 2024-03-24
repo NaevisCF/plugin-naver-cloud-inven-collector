@@ -31,9 +31,9 @@ setup(
     license='Apache License 2.0',
     packages=find_packages(),
     install_requires=[
-        'spaceone-core',
-        'spaceone-api',
-        'spaceone-inventory'
+        'spaceone-core==2.0.77',
+        'spaceone-api==2.0.135',
+        'spaceone-tester==1.11.0'
     ],
     package_data={"inventory": ["metadata/spaceone/*/*.yaml"]},
     zip_safe=False,
