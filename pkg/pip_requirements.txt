@@ -1,6 +1,4 @@
-spaceone-core==2.0.77
-spaceone-api==2.0.135
-spaceone-tester==1.11.0
-spaceone-inventory==2.0.dev86
+spaceone-core
+spaceone-api
 ncloud-sdk
 schematics
