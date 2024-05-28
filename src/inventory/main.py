@@ -29,6 +29,7 @@ def collector_collect(params: dict) -> Generator[dict, None, None]:
         for service in services:
             results = CollectorService().collect(options, secret_data, service)
             for result in results:
+                print(result)
                 yield result
 
 
