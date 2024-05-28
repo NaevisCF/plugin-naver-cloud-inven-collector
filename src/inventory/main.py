@@ -1,7 +1,9 @@
 from typing import Generator
+import logging
 from spaceone.inventory.plugin.collector.lib.server import CollectorPluginServer
 from inventory.service.collector_service import CollectorService
 
+_LOGGER = logging.getLogger("cloudforet")
 app = CollectorPluginServer()
 
 
@@ -16,16 +18,17 @@ def collector_verify(params: dict) -> None:
 
 
 @app.route('Collector.collect')
-def collector_collect(params: dict) -> Generator[dict, None, None]:
-    options = params.get("options", {})
-    secret_data = params.get("secret_data", {})
+def collector_collect(params: dict):
+    options = params["options"]
+    secret_data = params["secret_data"]
     task_options = params.get("task_options")
-    resource_type = options.get("resource_type")
+    resource_type = task_options.get("resource_type")
 
     print(params)
 
     if resource_type == "inventory.CloudService":
         services = task_options.get("services")
+        print(services)
         for service in services:
             results = CollectorService().collect(options, secret_data, service)
             for result in results:
