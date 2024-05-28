@@ -19,10 +19,13 @@ def collector_verify(params: dict) -> None:
 def collector_collect(params: dict) -> Generator[dict, None, None]:
     options = params.get("options", {})
     secret_data = params.get("secret_data", {})
+    task_options = params.get("task_options")
     resource_type = options.get("resource_type")
 
+    print(params)
+
     if resource_type == "inventory.CloudService":
-        services = options.get("services")
+        services = task_options.get("services")
         for service in services:
             results = CollectorService().collect(options, secret_data, service)
             for result in results:

@@ -46,6 +46,7 @@ class TestCollectExample(TestCase):
                 "options": task_options,
                 "secret_data": secret_data,
                 "filter": filter,
+                "task_options": task_options
             }
             res_stream = self.inventory.Collector.collect(params)
             for res in res_stream:
