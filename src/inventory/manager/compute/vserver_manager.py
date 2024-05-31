@@ -95,7 +95,7 @@ class VServerManager(BaseManager):
     def _get_hardware_data(instance):
         hardware_data = {
             'cpu_count': instance.cpu_count,
-            'memory_size': instance.memory_size,
+            'memory_size': round((instance.memory_size / (1024 * 1024 * 1024)), 2),
             'base_block_storage_disk_type': instance.base_block_storage_disk_type.code_name,
             'base_block_storage_disk_detail_type': instance.base_block_storage_disk_detail_type.code_name
         }
