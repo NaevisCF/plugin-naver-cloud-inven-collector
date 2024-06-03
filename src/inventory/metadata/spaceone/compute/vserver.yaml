@@ -66,7 +66,7 @@ tabs.0:
   type: item
   fields:
     - Server Instance No: data.compute.server_instance_no
-    - Status: data.compute.server_instance_status_name
+    - Status: data.compute.server_instance_status
       type: enum
       enums:
         - RUN: green.500
