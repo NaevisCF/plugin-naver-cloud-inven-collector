@@ -57,10 +57,15 @@ class VServerManager(BaseManager):
                 'network': network_data
             }
 
+            resource_id = server_data["compute"]["server_instance_no"]
+            link = server_data["compute"]["server_instance_no"]
+            reference = self._get_reference(resource_id, link)
+
             cloud_service = make_cloud_service(
                 name=server_instance.server_name,
                 instance_type=server_instance.server_instance_type.code,
                 region_code=server_instance.region_code,
+                reference=reference,
                 cloud_service_type=self.cloud_service_type,
                 cloud_service_group=self.cloud_service_group,
                 provider=self.provider,
@@ -68,7 +73,7 @@ class VServerManager(BaseManager):
             )
             yield make_response(
                 cloud_service=cloud_service,
-                match_keys=[["cloud_service_type", "cloud_service_group", "reference.resource_id", "account", "provider"]],
+                match_keys=[["cloud_service_type", "cloud_service_group", "reference.resource_id", "provider"]],
                 resource_type="inventory.CloudService"
             )
 
@@ -110,3 +115,10 @@ class VServerManager(BaseManager):
             'public_ip': instance.public_ip
         }
         return network_data
+
+    @staticmethod
+    def _get_reference(resource_id: str, link: str) -> dict:
+        return {
+            "resource_id": resource_id,
+            "external_link": link
+        }
