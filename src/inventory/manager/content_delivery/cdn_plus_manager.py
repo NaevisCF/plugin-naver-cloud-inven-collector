@@ -1,18 +1,14 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.content_delivery.cdn_plus_connector import CdnPlusConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class CdnPlusManager(BaseManager):
+class CdnPlusManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Content Delivery"
         self.cloud_service_type = "Cdn Plus"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/content_delivery/cdn_plus.yaml"
 
     def collect_resources(self, options, secret_data):

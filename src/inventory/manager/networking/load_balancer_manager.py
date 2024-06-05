@@ -1,18 +1,14 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.networking.load_balancer_connector import LoadBalancerConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class LoadBalancerManager(BaseManager):
+class LoadBalancerManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Networking"
         self.cloud_service_type = "Load Balancer"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/networking/load_balancer.yaml"
 
     def collect_resources(self, options, secret_data):

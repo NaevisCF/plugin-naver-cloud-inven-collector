@@ -1,18 +1,14 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.compute.autoscaling_connector import AutoscalingConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class AutoscalingManager(BaseManager):
+class AutoscalingManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Compute"
         self.cloud_service_type = "Autoscaling"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/compute/autoscaling.yaml"
 
     def collect_resources(self, options, secret_data):

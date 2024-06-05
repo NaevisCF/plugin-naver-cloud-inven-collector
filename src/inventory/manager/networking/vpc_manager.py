@@ -1,18 +1,14 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.networking.vpc_connector import VpcConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class VpcManager(BaseManager):
+class VpcManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Networking"
         self.cloud_service_type = "vpc"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/networking/vpc.yaml"
 
     def collect_resources(self, options, secret_data):
@@ -73,11 +69,16 @@ class VpcManager(BaseManager):
                 'network_acl_list': matched_network_acl_list
             }
 
+            resource_id = vpc_data["vpc_no"]
+            link = ""
+            reference = self.get_reference(resource_id, link)
+
             cloud_service = make_cloud_service(
                 name=vpc.vpc_name,
                 region_code=vpc.region_code,
                 cloud_service_type=self.cloud_service_type,
                 cloud_service_group=self.cloud_service_group,
+                reference=reference,
                 provider=self.provider,
                 data=vpc_data,
             )
