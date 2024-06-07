@@ -46,7 +46,7 @@ class LoadBalancerManager(ResourceManager):
         for loadbalancer in loadbalancer_list:
             load_balancer_name = loadbalancer.load_balancer_name
             load_balancer_rule_list = self._get_load_balancer_rule_list(loadbalancer.load_balancer_rule_list)
-            load_balanced_server_instance_list = self._get_load_balanced_server_instance_list()
+            load_balanced_server_instance_list = self._get_load_balanced_server_instance_list(loadbalancer.load_balanced_server_instance_list)
 
             loadbalancer_data = {
                 'load_balancer_instance_no': loadbalancer.load_balancer_instance_no,

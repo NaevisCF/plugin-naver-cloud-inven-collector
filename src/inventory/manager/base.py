@@ -16,6 +16,7 @@ CLOUD_SERVICE_MANAGER_MAP = {
     'CdnGlobal': 'CdnGlobalManager',
     # 'CloudDB': 'CloudDBManager',
     'VPC': 'VpcManager',
+    'VLoadBalancer': 'VLoadBalancerManager',
 }
 
 
@@ -95,5 +96,5 @@ class ResourceManager(BaseManager):
         )
 
     @abc.abstractmethod
-    def create_cloud_service(self, region, options, secret_data, schema):
+    def create_cloud_service(self, options, secret_data):
         raise NotImplementedError("method `create_cloud_service` should be implemented")
