@@ -35,7 +35,7 @@ class ResourceManager(BaseManager):
 
     def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service_type()
             yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(

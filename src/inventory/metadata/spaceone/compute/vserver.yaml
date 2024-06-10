@@ -113,7 +113,7 @@ tabs.2:
       is_optional: true
     - Subnet NO: data.network.subnet_no
       is_optional: true
-    - VPC NO: data.network.vpc.no
+    - VPC NO: data.network.vpc_no
       is_optional: true
 
 tabs.3:

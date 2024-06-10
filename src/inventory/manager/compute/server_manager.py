@@ -14,7 +14,7 @@ class ServerManager(ResourceManager):
 
     def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service_type()
             yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
@@ -24,7 +24,7 @@ class ServerManager(ResourceManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data):
+    def collect_cloud_service_type(self):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
