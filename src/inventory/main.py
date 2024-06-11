@@ -1,7 +1,6 @@
-from typing import Generator
 import logging
 from spaceone.inventory.plugin.collector.lib.server import CollectorPluginServer
-from inventory.service.collector_service import CollectorService
+from inventory.manager.base import ResourceManager
 
 _LOGGER = logging.getLogger("cloudforet")
 app = CollectorPluginServer()
@@ -30,7 +29,7 @@ def collector_collect(params: dict):
         services = task_options.get("services")
         print(services)
         for service in services:
-            results = CollectorService().collect(options, secret_data, service)
+            results = ResourceManager().collect(options, secret_data, service)
             for result in results:
                 print(result)
                 yield result
@@ -64,7 +63,7 @@ def job_get_tasks(params: dict) -> dict:
 
 
 def _set_service_filter(options):
-    available_services = CollectorService.get_service_names()
+    available_services = ResourceManager.get_service_names()
 
     if service_filter := options.get("service_filter"):
         _validate_service_filter(service_filter, available_services)

@@ -108,13 +108,9 @@ tabs.2:
   type: item
   fields:
     - Public IP: data.network.public_ip
-      is_optional: true
     - Private IP: data.network.private_ip
-      is_optional: true
     - Subnet NO: data.network.subnet_no
-      is_optional: true
-    - VPC NO: data.network.vpc.no
-      is_optional: true
+    - VPC NO: data.network.vpc_no
 
 tabs.3:
   name: Disk

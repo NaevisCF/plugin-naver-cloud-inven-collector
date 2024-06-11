@@ -1,21 +1,117 @@
 search:
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
+    - VPC No: data.vpc_no
+    - State: data.vpc_status
+
 table:
   sort:
-    key: data.server_instance_no
+    key: data.vpc_no
     desc: false
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
-    - Server Image: data.server_image_name
-    - Server Name: data.server_name
+    - VPC No: data.vpc_no
+    - Status: data.vpc_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - TERMTING: gray.400
+          type: state
+    - Create Date: data.create_date
+      type: datetime
+    - region: data.region_code
+    - IPv4 CIDR Block: data.ipv4_cidr_block
+
 tabs.0:
-  name: Details
+  name: VPC
   type: item
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
-    - Server Image: data.server_image_name
-    - Server Name: data.server_name
+    - VPC No: data.vpc_no
+    - Status: data.vpc_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - TERMTING: gray.400
+          type: state
+    - Create Date: data.create_date
+      type: datetime
+    - region: data.region_code
+    - IPv4 CIDR Block: data.ipv4_cidr_block
+
+tabs.1:
+  name: Subnet
+  type: table
+  root_path: data.subnet_list
+  field:
+    - Name: subnet_name
+    - Status: subnet_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - TERMTING: gray.400
+          type: state
+    - NACL No: network_acl_no
+    - Subnet No: subnet_no
+    - Usage Type: usage_type
+    - Create Date: create_date
+      type: datetime
+    - Zone: zone_code
+    - Subnet Type: subnet_type
+
+tabs.2:
+  name: Route Table
+  type: table
+  root_path: data.route_table_list
+  field:
+    - Name: route_table_name
+    - Status: route_table_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - TERMTING: gray.400
+          type: state
+    - Description: route_table_description
+    - Route Table No: route_table_no
+    - Route Table Type: supported_subnet_type
+    - Is Default: is_default
+      data_type: "boolean"
+
+tabs.3:
+  name: NACL
+  type: table
+  root_path: data.network_acl_list
+  field:
+    - Name: nat_gateway_name
+    - Status: network_acl_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - TERMTING: gray.400
+          type: state
+    - Description: network_acl_description
+    - NACl No: network_acl_no
+    - Is Default: is_default
+      data_type: "boolean"

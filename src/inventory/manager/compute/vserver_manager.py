@@ -1,23 +1,19 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.compute.vserver_connector import VServerConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class VServerManager(BaseManager):
+class VServerManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Compute"
         self.cloud_service_type = "VServer"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/compute/vserver.yaml"
 
     def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service_type()
             yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
@@ -27,7 +23,7 @@ class VServerManager(BaseManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data):
+    def collect_cloud_service_type(self):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -59,7 +55,7 @@ class VServerManager(BaseManager):
 
             resource_id = server_data["compute"]["server_instance_no"]
             link = server_data["compute"]["server_instance_no"]
-            reference = self._get_reference(resource_id, link)
+            reference = self.get_reference(resource_id, link)
 
             cloud_service = make_cloud_service(
                 name=server_instance.server_name,
@@ -115,10 +111,3 @@ class VServerManager(BaseManager):
             'public_ip': instance.public_ip
         }
         return network_data
-
-    @staticmethod
-    def _get_reference(resource_id: str, link: str) -> dict:
-        return {
-            "resource_id": resource_id,
-            "external_link": link
-        }

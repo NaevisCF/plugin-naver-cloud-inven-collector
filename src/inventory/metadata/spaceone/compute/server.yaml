@@ -2,20 +2,109 @@ search:
   fields:
     - Autoscaling Group Name: data.autoscaling_group_name
     - Status: data.server_instance_status_name
+
 table:
   sort:
-    key: data.server_instance_no
+    key: data.compute.server_instance_no
     desc: false
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
-    - Server Image: data.server_image_name
-    - Server Name: data.server_name
+    - Status: data.compute.server_instance_status_name
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREAT: yellow.500
+          type: state
+        - NSTOP: red.500
+          type: state
+        - FSTOP: red.500
+          type: state
+        - SD_FL: red.500
+          type: state
+        - RS_FL: red.500
+          type: state
+        - ST_FL: red.500
+          type: state
+        - TERMT: gray.400
+          type: state
+    - Server Instance Type: data.compute.server_instance_type
+    - Core: data.hardware.cpu_count
+    - Memory: data.hardware.memory_size
+    - Instance ID: data.compute.server_instance_no
+      is_optional: true
+    - Create Date: data.compute.create_date
+      is_optional: true
+    - Platform Type: data.compute.platform_type
+      is_optional: true
+    - Server Description: data.compute.server_description
+      is_optional: true
+    - Server Image Code: data.compute.server_image_product_code
+      is_optional: true
+    - Uptime: data.compute.uptime
+      type: datetime
+      is_optional: true
+    - Zone: data.compute.zone
+      is_optional: true
+    - Public IP: data.ip.public_ip
+      is_optional: true
+    - Private IP: data.ip.private_ip
+      is_optional: true
+
 tabs.0:
-  name: Details
+  name: Instance
   type: item
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
-    - Server Image: data.server_image_name
-    - Server Name: data.server_name
+    - Server Instance No: data.compute.server_instance_no
+    - Status: data.compute.server_instance_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREAT: yellow.500
+          type: state
+        - NSTOP: red.500
+          type: state
+        - FSTOP: red.500
+          type: state
+        - SD_FL: red.500
+          type: state
+        - RS_FL: red.500
+          type: state
+        - ST_FL: red.500
+          type: state
+        - TERMT: gray.400
+          type: state
+    - Server Name: data.compute.server_name
+    - Server Description: data.compute.server_description
+    - Server Instance Type: data.compute.server_instance_type
+    - Platform Type: data.compute.platform_type
+    - Server Image Code: data.compute.server_image_product_code
+    - Uptime: data.compute.uptime
+      type: datetime
+    - Zone: data.compute.zone
+
+tabs.1:
+  name: Hardware
+  type: item
+  fields:
+    - Core: data.hardware.cpu_count
+    - Memory: data.hardware.memory_size
+
+tabs.2:
+  name: IP
+  type: itemz
+  fields:
+    - Public IP: data.ip.public_ip
+    - Private IP: data.ip.private_ip
+
+tabs.3:
+  name: Port Forwarding Rules
+  type: item
+  fields:
+    - External Port: data.port_forwarding_rules.port_forwarding_external_port
+    - Internal Port: data.port_forwarding_rules.port_forwarding_internal_port
+    - Public IP: data.port_forwarding_rules.port_forwarding_public_ip
