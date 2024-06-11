@@ -14,7 +14,7 @@ CLOUD_SERVICE_MANAGER_MAP = {
     'Autoscaling': 'AutoscalingManager',
     'CdnPlus': 'CdnPlusManager',
     'CdnGlobal': 'CdnGlobalManager',
-    # 'CloudDB': 'CloudDBManager',
+    # 'CloudDB': 'CloudDBManager', 필수 parameter 처리 로직 구현해야함
     'VPC': 'VpcManager',
     'VLoadBalancer': 'VLoadBalancerManager',
 }

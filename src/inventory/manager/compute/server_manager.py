@@ -92,7 +92,7 @@ class ServerManager(ResourceManager):
     def _get_hardware_data(instance):
         hardware_data = {
             'cpu_count': instance.cpu_count,
-            'memory_size': instance.memory_size
+            'memory_size': round((instance.memory_size / (1024 * 1024 * 1024)), 2),
         }
         return hardware_data
 
