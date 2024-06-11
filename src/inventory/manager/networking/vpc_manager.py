@@ -35,7 +35,7 @@ class VpcManager(ResourceManager):
 
         yield make_response(
             cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
+            match_keys=[["name", "group", "provider"]],
             resource_type="inventory.CloudServiceType",
         )
 
@@ -84,7 +84,7 @@ class VpcManager(ResourceManager):
             )
             yield make_response(
                 cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
+                match_keys=[["cloud_service_type", "cloud_service_group", "reference.resource_id", "provider"]],
             )
 
     @staticmethod
