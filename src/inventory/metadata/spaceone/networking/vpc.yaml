@@ -50,7 +50,7 @@ tabs.1:
   name: Subnet
   type: table
   root_path: data.subnet_list
-  field:
+  fields:
     - Name: subnet_name
     - Status: subnet_status
       type: enum
@@ -75,7 +75,7 @@ tabs.2:
   name: Route Table
   type: table
   root_path: data.route_table_list
-  field:
+  fields:
     - Name: route_table_name
     - Status: route_table_status
       type: enum
@@ -98,7 +98,7 @@ tabs.3:
   name: NACL
   type: table
   root_path: data.network_acl_list
-  field:
+  fields:
     - Name: nat_gateway_name
     - Status: network_acl_status
       type: enum
