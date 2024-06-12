@@ -1,18 +1,14 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.database.cloud_db_connector import CloudDBConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class CloudDBManager(BaseManager):
+class CloudDBManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Database"
         self.cloud_service_type = "Cloud DB"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/database/cloud_db.yaml"
 
     def collect_resources(self, options, secret_data):

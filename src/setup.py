@@ -35,6 +35,10 @@ setup(
         'spaceone-api',
         'spaceone-tester'
     ],
-    package_data={"inventory": ["metadata/spaceone/*/*.yaml"]},
+    package_data={
+        "inventory": [
+            "metadata/spaceone/*/*.yaml"
+        ]
+    },
     zip_safe=False,
 )

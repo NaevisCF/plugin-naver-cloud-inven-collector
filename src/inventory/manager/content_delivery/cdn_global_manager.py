@@ -1,18 +1,14 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.content_delivery.cdn_global_connector import CdnGlobalConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class CdnGlobalManager(BaseManager):
+class CdnGlobalManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Content Delivery"
         self.cloud_service_type = "Cdn Global"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/content_delivery/cdn_global.yaml"
 
     def collect_resources(self, options, secret_data):

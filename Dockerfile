@@ -1,4 +1,4 @@
-FROM python:3.8-slim
+FROM cloudforet/python-core:2.0
 
 ENV PYTHONUNBUFFERED 1
 ENV SPACEONE_PORT 50051
@@ -11,13 +11,12 @@ RUN apt update && apt upgrade -y
 COPY pkg/*.txt ${PKG_DIR}/
 
 RUN pip install --upgrade pip && \
-    pip install --upgrade -r ${PKG_DIR}/pip_requirements.txt
+    pip install --upgrade -r ${PKG_DIR}/pip_requirements.txt \
+    pip install --upgrade spaceone-inventory==2.0.dev160
 
 COPY src ${SRC_DIR}
 WORKDIR ${SRC_DIR}
-
-RUN python3 setup.py install
-RUN rm -rf /tmp/*
+RUN python3 setup.py install && rm -rf /tmp/*
 
 EXPOSE ${SPACEONE_PORT}
 

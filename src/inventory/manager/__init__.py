@@ -6,3 +6,4 @@ from inventory.manager.content_delivery.cdn_global_manager import CdnGlobalManag
 from inventory.manager.networking.vpc_manager import VpcManager
 from inventory.manager.networking.load_balancer_manager import LoadBalancerManager
 from inventory.manager.database.cloud_db_manager import CloudDBManager
+from inventory.manager.networking.vload_balancer_manager import VLoadBalancerManager

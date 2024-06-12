@@ -1,23 +1,122 @@
 search:
   fields:
     - Server Instance No: data.compute.server_instance_no
-    - Status: data.compute.server_instance_status_name
+    - Status: data.compute.server_instance_status
+    - Server Instance Type: data.compute.server_instance_type
+    - VPC No: data.network.vpc_no
+    - Subnet No: data.network.subnet_no
+
 table:
   sort:
     key: data.compute.server_instance_no
     desc: false
   fields:
-    - Server Instance No: data.compute.server_instance_no
-    - Status: data.compute.server_instance_status_name
-    - Server Name: data.compute.server_name
-    - Server Description: data.compute.server_description
+    - Status: data.compute.server_instance_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREAT: yellow.500
+          type: state
+        - NSTOP: red.500
+          type: state
+        - FSTOP: red.500
+          type: state
+        - SD_FL: red.500
+          type: state
+        - RS_FL: red.500
+          type: state
+        - ST_FL: red.500
+          type: state
+        - TERMT: gray.400
+          type: state
     - Server Instance Type: data.compute.server_instance_type
+    - Core: data.hardware.cpu_count
+    - Memory: data.hardware.memory_size
+    - Instance ID: data.compute.server_instance_no
+      is_optional: true
+    - Create Date: data.compute.create_date
+      is_optional: true
+    - Platform Type: data.compute.platform_type
+      is_optional: true
+    - Server Description: data.compute.server_description
+      is_optional: true
+    - Server Image Code: data.compute.server_image_product_code
+      is_optional: true
+    - Uptime: data.compute.uptime
+      type: datetime
+      is_optional: true
+    - Zone: data.compute.zone_code
+      is_optional: true
+    - Block Storage Type: data.hardware.base_block_storage_disk_detail_type
+      is_optional: true
+    - Public IP: data.network.public_ip
+      is_optional: true
+    - Private IP: data.network.private_ip
+      is_optional: true
+    - Subnet NO: data.network.subnet_no
+      is_optional: true
+    - VPC NO: data.network.vpc.no
+      is_optional: true
+
 tabs.0:
-  name: Details
+  name: Instance
   type: item
   fields:
     - Server Instance No: data.compute.server_instance_no
-    - Status: data.compute.server_instance_status_name
+    - Status: data.compute.server_instance_status
+      type: enum
+      enums:
+        - RUN: green.500
+          type: state
+        - INIT: yellow.500
+          type: state
+        - CREAT: yellow.500
+          type: state
+        - NSTOP: red.500
+          type: state
+        - FSTOP: red.500
+          type: state
+        - SD_FL: red.500
+          type: state
+        - RS_FL: red.500
+          type: state
+        - ST_FL: red.500
+          type: state
+        - TERMT: gray.400
+          type: state
     - Server Name: data.compute.server_name
     - Server Description: data.compute.server_description
     - Server Instance Type: data.compute.server_instance_type
+    - Platform Type: data.compute.platform_type
+    - Server Image Code: data.compute.server_image_product_code
+    - Uptime: data.compute.uptime
+      type: datetime
+    - Zone: data.compute.zone_code
+
+tabs.1:
+  name: Hardware
+  type: item
+  fields:
+    - Core: data.hardware.cpu_count
+    - Memory: data.hardware.memory_size
+
+tabs.2:
+  name: Network
+  type: item
+  fields:
+    - Public IP: data.network.public_ip
+    - Private IP: data.network.private_ip
+    - Subnet NO: data.network.subnet_no
+    - VPC NO: data.network.vpc_no
+
+tabs.3:
+  name: Disk
+  type: item
+  fields:
+    - Block Storage Type: data.hardware.base_block_storage_disk_type
+    - Block Storage Detail: data.hardware.base_block_storage_disk_detail_type
+
+
