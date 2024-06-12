@@ -1,23 +1,19 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.networking.load_balancer_connector import LoadBalancerConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class LoadBalancerManager(BaseManager):
+class LoadBalancerManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Networking"
         self.cloud_service_type = "Load Balancer"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/networking/load_balancer.yaml"
 
     def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service_type()
             yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
@@ -27,7 +23,7 @@ class LoadBalancerManager(BaseManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data):
+    def collect_cloud_service_type(self):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -50,7 +46,7 @@ class LoadBalancerManager(BaseManager):
         for loadbalancer in loadbalancer_list:
             load_balancer_name = loadbalancer.load_balancer_name
             load_balancer_rule_list = self._get_load_balancer_rule_list(loadbalancer.load_balancer_rule_list)
-            load_balanced_server_instance_list = self._get_load_balanced_server_instance_list()
+            load_balanced_server_instance_list = self._get_load_balanced_server_instance_list(loadbalancer.load_balanced_server_instance_list)
 
             loadbalancer_data = {
                 'load_balancer_instance_no': loadbalancer.load_balancer_instance_no,

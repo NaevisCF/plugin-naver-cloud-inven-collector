@@ -1,23 +1,20 @@
 import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.compute.server_connector import ServerConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class ServerManager(BaseManager):
+class ServerManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Compute"
         self.cloud_service_type = "Server"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/compute/server.yaml"
 
     def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service_type()
             yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
@@ -27,7 +24,7 @@ class ServerManager(BaseManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data):
+    def collect_cloud_service_type(self):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -95,7 +92,7 @@ class ServerManager(BaseManager):
     def _get_hardware_data(instance):
         hardware_data = {
             'cpu_count': instance.cpu_count,
-            'memory_size': instance.memory_size
+            'memory_size': round((instance.memory_size / (1024 * 1024 * 1024)), 2),
         }
         return hardware_data
 

@@ -1,23 +1,19 @@
-import logging
-from spaceone.core.manager import BaseManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.compute.vserver_connector import VServerConnector
 
-_LOGGER = logging.getLogger("cloudforet")
 
-
-class VServerManager(BaseManager):
+class VServerManager(ResourceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.cloud_service_group = "Compute"
         self.cloud_service_type = "VServer"
-        self.provider = "naver cloud"
         self.metadata_path = "metadata/spaceone/compute/vserver.yaml"
 
     def collect_resources(self, options, secret_data):
         try:
-            yield from self.collect_cloud_service_type(options, secret_data)
+            yield from self.collect_cloud_service_type()
             yield from self.collect_cloud_service(options, secret_data)
         except Exception as e:
             yield make_error_response(
@@ -27,7 +23,7 @@ class VServerManager(BaseManager):
                 cloud_service_type=self.cloud_service_type,
             )
 
-    def collect_cloud_service_type(self, options, secret_data):
+    def collect_cloud_service_type(self):
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -39,7 +35,7 @@ class VServerManager(BaseManager):
 
         yield make_response(
             cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
+            match_keys=[["name", "group", "provider"]],
             resource_type="inventory.CloudServiceType",
         )
 
@@ -57,10 +53,15 @@ class VServerManager(BaseManager):
                 'network': network_data
             }
 
+            resource_id = server_data["compute"]["server_instance_no"]
+            link = server_data["compute"]["server_instance_no"]
+            reference = self.get_reference(resource_id, link)
+
             cloud_service = make_cloud_service(
                 name=server_instance.server_name,
                 instance_type=server_instance.server_instance_type.code,
                 region_code=server_instance.region_code,
+                reference=reference,
                 cloud_service_type=self.cloud_service_type,
                 cloud_service_group=self.cloud_service_group,
                 provider=self.provider,
@@ -68,7 +69,8 @@ class VServerManager(BaseManager):
             )
             yield make_response(
                 cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
+                match_keys=[["cloud_service_type", "cloud_service_group", "reference.resource_id", "provider"]],
+                resource_type="inventory.CloudService"
             )
 
     @staticmethod
@@ -94,7 +96,7 @@ class VServerManager(BaseManager):
     def _get_hardware_data(instance):
         hardware_data = {
             'cpu_count': instance.cpu_count,
-            'memory_size': instance.memory_size,
+            'memory_size': round((instance.memory_size / (1024 * 1024 * 1024)), 2),
             'base_block_storage_disk_type': instance.base_block_storage_disk_type.code_name,
             'base_block_storage_disk_detail_type': instance.base_block_storage_disk_detail_type.code_name
         }
