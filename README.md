@@ -12,7 +12,7 @@
 
 **Plugin to collect Naver Cloud**
 
-> SpaceONE's [plugin-naver-cloud-inven-collector](https://github.com/kiku99/plugin-ncloud-service-inven-collector) is a convenient tool to
+> SpaceONE's [plugin-naver-cloud-inven-collector](https://github.com/kiku99/plugin-naver-cloud-inven-collector) is a convenient tool to
 get cloud service data from Naver Cloud platform.
 
 
