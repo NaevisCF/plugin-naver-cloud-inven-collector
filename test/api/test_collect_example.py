@@ -55,7 +55,7 @@ class TestCollectExample(TestCase):
     def test_get_tasks(self):
         print(f"=================== start get_tasks! ==========================")
         options = {
-            "service_filter": "VServer"
+
         }
         v_info = self.inventory.Job.get_tasks(
             {"options": options, "secret_data": self.secrets}
