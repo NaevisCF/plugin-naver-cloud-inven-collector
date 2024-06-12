@@ -10,7 +10,7 @@
   </p> 
 </div>    
 
-**Plugin to collect Naver Cloud**
+**Plugin to collect Naver Cloud 2.0**
 
 > SpaceONE's [plugin-naver-cloud-inven-collector](https://github.com/kiku99/plugin-naver-cloud-inven-collector) is a convenient tool to
 get cloud service data from Naver Cloud platform.
@@ -22,7 +22,12 @@ Please contact us if you need any further information. (<elsd0326@gmail.com>)
 Find us also at [Dockerhub](https://hub.docker.com/r/jihyungsong/plugin-naver-cloud-inven-collector)
 
 ---
+## Plugin Information
 
+### Package Version
+- spaceone-api 2.0.183
+- spaceone-core 2.0.88
+- spaceone-inventory 2.0.dev160
 
 ### Service list
 
@@ -39,6 +44,11 @@ The following is a list of services being collected and service code information
 |7| CDN Plus     |Content Delivery|
 |8| CDN Global   |Content Delivery|
 |9| Cloud DB      |Database|
+
+### Tasks
+- inventory.CloudService
+- inventory.CloudServiceType
+- inventory.Region
 
 ---
 
@@ -64,7 +74,7 @@ The cloud_service_types items that can be specified are as follows.
 </code>
 </pre>
 
-## Ncloud Zone Environment
+### Ncloud Zone Environment
 Zones are data centers and networks that are physically separate within a region at the national level.
 Because each zone exists independently, failure in one zone does not affect the other.
 
