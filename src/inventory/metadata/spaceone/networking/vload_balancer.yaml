@@ -1,21 +1,89 @@
 search:
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
+    - Name : vload_balancer_name
+    - Status: data.load_balancer_instance_status_name
+
 table:
   sort:
-    key: data.server_instance_no
+    key: data.load_balancer_instance_no
     desc: false
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
-    - Server Image: data.server_image_name
-    - Server Name: data.server_name
+    - Status: data.load_balancer_instance_status_name
+      type: enum
+      enums:
+        - Running: green.500
+          type: state
+        - Changing: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - Terminating: red.500
+          type: state
+        - Repairing: red.500
+          type: state
+        - Terminated: gray.400
+          type: state
+    - Load Balancer Type: data.load_balancer_type
+    - VPC No: data.vpc_no
+    - Network Type: data.load_balancer_network_type
+    - Throughput Type: data.throughput_type
+    - Load Balancer No: data.load_balancer_instance_no
+      is_optional: true
+    - Region: data.region_code
+      is_optional: true
+    - Idle Timeout: data.idle_timeout
+      is_optional: true
+    - Create Date: data.create_date
+      type: datetime
+
 tabs.0:
-  name: Details
+  name: Load Balancer
   type: item
   fields:
-    - Server Instance No: data.server_instance_no
-    - Status: data.server_instance_status_name
-    - Server Image: data.server_image_name
-    - Server Name: data.server_name
+    - Status: data.load_balancer_instance_status_name
+      type: enum
+      enums:
+        - Running: green.500
+          type: state
+        - Changing: yellow.500
+          type: state
+        - CREATING: yellow.500
+          type: state
+        - Terminating: red.500
+          type: state
+        - Repairing: red.500
+          type: state
+        - Terminated: gray.400
+          type: state
+    - Load Balancer Type: data.load_balancer_type
+    - VPC No: data.vpc_no
+    - Network Type: data.load_balancer_network_type
+    - Load Balancer No: data.load_balancer_instance_no
+    - Throughput Type: data.throughput_type
+    - Region: data.region_code
+    - Description: data.load_balancer_description
+    - Idle Timeout: data.idle_timeout
+    - Create Date: data.create_date
+      type: datetime
+    - Domain: data.load_balancer_domain
+
+tabs.1:
+  name: Subnet
+  type: table
+  root_path: data.subnet_no_list
+  fields:
+    - Subnet No: subnet_no_list
+
+tabs.2:
+  name: IP
+  type: table
+  root_path: data.load_balancer_ip_list
+  fields:
+    - IP: load_balancer_ip_list
+
+tabs.3:
+  name: Listener
+  type: table
+  root_path: data.load_balancer_listener_no_list
+  fields:
+    - Listener: load_balancer_listener_no_list
