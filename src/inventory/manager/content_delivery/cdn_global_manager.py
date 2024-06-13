@@ -11,19 +11,8 @@ class CdnGlobalManager(ResourceManager):
         self.cloud_service_type = "Cdn Global"
         self.metadata_path = "metadata/spaceone/content_delivery/cdn_global.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type(options, secret_data)
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self, options, secret_data):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -31,48 +20,59 @@ class CdnGlobalManager(ResourceManager):
             metadata_path=self.metadata_path,
             is_primary=True,
             is_major=True,
+            labels=["Content Delivery", "CDN Global"]
         )
+        result.append(cloud_service_type)
+        return result
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
-
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         cdn_connector = CdnGlobalConnector(secret_data=secret_data)
         cdn_instances = cdn_connector.list_cdn_global_cdn_instance_instance()
 
         for instance in cdn_instances:
-            instance_name = instance.service_name
-            global_cdn_service_domain_list = self._get_global_cdn_service_domain_list(instance.global_cdn_service_domain_list)
-            global_cdn_rule = self._get_global_cdn_rule(instance.global_cdn_rule)
+            try:
+                instance_name = instance.service_name
+                global_cdn_service_domain_list = self._get_global_cdn_service_domain_list(instance.global_cdn_service_domain_list)
+                global_cdn_rule = self._get_global_cdn_rule(instance.global_cdn_rule)
 
-            instance_data = {
-                'cdn_instance_no': instance.cdn_instance_no,
-                'cdn_instance_status': instance.cdn_instance_status.code_name,
-                'cdn_instance_operation': instance.cdn_instance_operation.code_name,
-                'cdn_instance_status_name': instance.cdn_instance_status_name,
-                'create_date': instance.create_date,
-                'last_modified_date': instance.last_modified_date,
-                'cdn_instance_description': instance.cdn_instance_description,
-                'is_available_partial_domain_purge': instance.is_available_partial_domain_purge,
-                'global_cdn_service_domain_list': global_cdn_service_domain_list,
-                'global_cdn_rule': global_cdn_rule
-            }
+                instance_data = {
+                    'cdn_instance_no': instance.cdn_instance_no,
+                    'cdn_instance_status': instance.cdn_instance_status.code_name,
+                    'cdn_instance_operation': instance.cdn_instance_operation.code_name,
+                    'cdn_instance_status_name': instance.cdn_instance_status_name,
+                    'create_date': instance.create_date,
+                    'last_modified_date': instance.last_modified_date,
+                    'cdn_instance_description': instance.cdn_instance_description,
+                    'is_available_partial_domain_purge': instance.is_available_partial_domain_purge,
+                    'global_cdn_service_domain_list': global_cdn_service_domain_list,
+                    'global_cdn_rule': global_cdn_rule
+                }
 
-            cloud_service = make_cloud_service(
-                name=instance_name,
-                instance_type=instance.server_instance_type.code,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=instance_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            )
+                link = ""
+                resource_id = instance.get('cdn_instance_no')
+                reference = self.get_reference(resource_id, link)
+
+                cloud_service = make_cloud_service(
+                    name=instance_name,
+                    instance_type=instance.server_instance_type.code,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    reference=reference,
+                    data=instance_data
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{instance.cdn_instance_no}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_global_cdn_service_domain_list(global_cdn_service_domain_list):
@@ -122,5 +122,3 @@ class CdnGlobalManager(ResourceManager):
         }
 
         return rule_data
-
-

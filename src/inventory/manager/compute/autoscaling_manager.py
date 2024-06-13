@@ -11,19 +11,8 @@ class AutoscalingManager(ResourceManager):
         self.cloud_service_type = "Autoscaling"
         self.metadata_path = "metadata/spaceone/compute/autoscaling.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type(options, secret_data)
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self, options, secret_data):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -31,15 +20,12 @@ class AutoscalingManager(ResourceManager):
             metadata_path=self.metadata_path,
             is_primary=True,
             is_major=True,
+            labels=["Compute", "Autoscaling"]
         )
+        result.append(cloud_service_type)
+        return result
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
-
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         autoscaling_connector = AutoscalingConnector(secret_data=secret_data)
         autoscaling_groups = autoscaling_connector.list_autoscaling_group()
         activity_log_list = autoscaling_connector.list_autoscaling_activity_log()
@@ -47,41 +33,55 @@ class AutoscalingManager(ResourceManager):
         launch_configuration_list = autoscaling_connector.list_launch_configuration()
 
         for autoscaling_group in autoscaling_groups:
-            autoscaling_group_name = autoscaling_group.auto_scaling_group_name
-            launch_configuration_name = autoscaling_group.launch_configuration_name
-            zone_list = self._get_zone_list(autoscaling_group.zone_list)
-            matched_activity_log_list = self._get_matched_activity_log_list(activity_log_list, autoscaling_group_name)
-            matched_configuration_log_list = self._get_matched_configuration_log_list(configuration_log_list,
-                                                                                      autoscaling_group_name)
-            matched_launch_configuration_list = self._get_matched_launch_configuration_list(
-                launch_configuration_list, launch_configuration_name)
+            try:
+                autoscaling_group_name = autoscaling_group.auto_scaling_group_name
+                launch_configuration_name = autoscaling_group.launch_configuration_name
+                zone_list = self._get_zone_list(autoscaling_group.zone_list)
+                matched_activity_log_list = self._get_matched_activity_log_list(activity_log_list, autoscaling_group_name)
+                matched_configuration_log_list = self._get_matched_configuration_log_list(configuration_log_list,
+                                                                                          autoscaling_group_name)
+                matched_launch_configuration_list = self._get_matched_launch_configuration_list(
+                    launch_configuration_list, launch_configuration_name)
 
-            autoscaling_data = {
-                "autoscaling_group_name": autoscaling_group_name,
-                'launched_at': autoscaling_group.create_date,
-                'default_cooldown': autoscaling_group.default_cooldown,
-                'desired_capacity': autoscaling_group.desired_capacity,
-                'health_check_grace_period': autoscaling_group.health_check_grace_period,
-                'health_check_type': autoscaling_group.health_check_type.code,
-                'max_size': autoscaling_group.max_size,
-                'min_size': autoscaling_group.min_size,
-                'zone_list': zone_list,
-                'activity_log_list': matched_activity_log_list,
-                'configuration_log_list': matched_configuration_log_list,
-                'launch_configuration_list': matched_launch_configuration_list
-            }
+                autoscaling_data = {
+                    "autoscaling_group_name": autoscaling_group_name,
+                    'launched_at': autoscaling_group.create_date,
+                    'default_cooldown': autoscaling_group.default_cooldown,
+                    'desired_capacity': autoscaling_group.desired_capacity,
+                    'health_check_grace_period': autoscaling_group.health_check_grace_period,
+                    'health_check_type': autoscaling_group.health_check_type.code,
+                    'max_size': autoscaling_group.max_size,
+                    'min_size': autoscaling_group.min_size,
+                    'zone_list': zone_list,
+                    'activity_log_list': matched_activity_log_list,
+                    'configuration_log_list': matched_configuration_log_list,
+                    'launch_configuration_list': matched_launch_configuration_list
+                }
 
-            cloud_service = make_cloud_service(
-                name=autoscaling_group_name,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=autoscaling_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            )
+                link = ""
+                resource_id = autoscaling_group_name
+                reference = self.get_reference(resource_id, link)
+
+                cloud_service = make_cloud_service(
+                    name=autoscaling_group_name,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    reference=reference,
+                    data=autoscaling_data,
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{autoscaling_group.auto_scaling_group_name}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_zone_list(zone_list):
@@ -93,7 +93,7 @@ class AutoscalingManager(ResourceManager):
                 'zone_name': zone.zone_name,
                 'zone_no': zone.zone_no
             }
-        zone_list_info.append(zone)
+            zone_list_info.append(zone)
 
         return zone_list_info
 
@@ -156,5 +156,3 @@ class AutoscalingManager(ResourceManager):
                 launch_configuration_list_info.append(launch_configuration)
 
         return launch_configuration_list_info
-
-

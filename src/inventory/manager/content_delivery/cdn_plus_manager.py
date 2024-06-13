@@ -11,19 +11,8 @@ class CdnPlusManager(ResourceManager):
         self.cloud_service_type = "Cdn Plus"
         self.metadata_path = "metadata/spaceone/content_delivery/cdn_plus.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type(options, secret_data)
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self, options, secret_data):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -32,49 +21,59 @@ class CdnPlusManager(ResourceManager):
             is_primary=True,
             is_major=True,
         )
+        result.append(cloud_service_type)
+        return result
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
-
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         cdn_connector = CdnPlusConnector(secret_data=secret_data)
         cdn_instances = cdn_connector.list_cdn_plus_instance()
 
         for instance in cdn_instances:
-            instance_name = instance.service_name
-            instance_rule = instance.cdn_plus_rule
-            instance_service_domain_list = instance.cdn_plus_service_domain_list
-            cdn_plus_rule = self._get_cdn_plus_rule(instance_rule)
-            cdn_plus_service_domain_list = self._get_cdn_plus_service_domain(instance_service_domain_list)
+            try:
+                instance_name = instance.service_name
+                instance_rule = instance.cdn_plus_rule
+                instance_service_domain_list = instance.cdn_plus_service_domain_list
+                cdn_plus_rule = self._get_cdn_plus_rule(instance_rule)
+                cdn_plus_service_domain_list = self._get_cdn_plus_service_domain(instance_service_domain_list)
 
-            instance_data = {
-                'create_date': instance.create_date,
-                'cdn_instance_status': instance.cdn_instance_status.code_name,
-                'cdn_instance_operation': instance.cdn_instance_operation.code_name,
-                'cdn_instance_status_name': instance.cdn_instance_status_name,
-                'last_modified_date': instance.last_modified_date,
-                'service_name': instance.service_name,
-                'is_for_live_transcoder': instance.is_for_live_transcoder,
-                'is_for_image_optimizer': instance.is_for_image_optimizer,
-                'is_available_partial_domain_purge': instance.is_available_partial_domain_purge,
-                'cdn_plus_service_domain_list': cdn_plus_service_domain_list,
-                'cdn_plus_rule': cdn_plus_rule,
-            }
+                instance_data = {
+                    'create_date': instance.create_date,
+                    'cdn_instance_status': instance.cdn_instance_status.code_name,
+                    'cdn_instance_operation': instance.cdn_instance_operation.code_name,
+                    'cdn_instance_status_name': instance.cdn_instance_status_name,
+                    'last_modified_date': instance.last_modified_date,
+                    'service_name': instance.service_name,
+                    'is_for_live_transcoder': instance.is_for_live_transcoder,
+                    'is_for_image_optimizer': instance.is_for_image_optimizer,
+                    'is_available_partial_domain_purge': instance.is_available_partial_domain_purge,
+                    'cdn_plus_service_domain_list': cdn_plus_service_domain_list,
+                    'cdn_plus_rule': cdn_plus_rule,
+                }
 
-            cloud_service = make_cloud_service(
-                name=instance_name,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=instance_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            )
+                link = ""
+                resource_id = instance_data.get('service_name')
+                reference = self.get_reference(resource_id, link)
+
+                cloud_service = make_cloud_service(
+                    name=instance_name,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    reference=reference,
+                    data=instance_data
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{instance.service_name}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_cdn_plus_rule(instance):

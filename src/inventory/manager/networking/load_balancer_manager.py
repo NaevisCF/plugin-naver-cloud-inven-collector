@@ -11,19 +11,8 @@ class LoadBalancerManager(ResourceManager):
         self.cloud_service_type = "Load Balancer"
         self.metadata_path = "metadata/spaceone/networking/load_balancer.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type()
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -33,51 +22,62 @@ class LoadBalancerManager(ResourceManager):
             is_major=True,
         )
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
+        result.append(cloud_service_type)
+        return result
 
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         loadbalancer_connector = LoadBalancerConnector(secret_data=secret_data)
         loadbalancer_list = loadbalancer_connector.list_load_balancer_instance()
 
         for loadbalancer in loadbalancer_list:
-            load_balancer_name = loadbalancer.load_balancer_name
-            load_balancer_rule_list = self._get_load_balancer_rule_list(loadbalancer.load_balancer_rule_list)
-            load_balanced_server_instance_list = self._get_load_balanced_server_instance_list(loadbalancer.load_balanced_server_instance_list)
+            try:
+                load_balancer_name = loadbalancer.load_balancer_name
+                load_balancer_rule_list = self._get_load_balancer_rule_list(loadbalancer.load_balancer_rule_list)
+                load_balanced_server_instance_list = self._get_load_balanced_server_instance_list(loadbalancer.load_balanced_server_instance_list)
 
-            loadbalancer_data = {
-                'load_balancer_instance_no': loadbalancer.load_balancer_instance_no,
-                'virtual_ip': loadbalancer.virtual_ip,
-                'load_balancer_algorithm_type': loadbalancer.load_balancer_algorithm_type.code_name,
-                'load_balancer_description': loadbalancer.load_balancer_description,
-                'create_date': loadbalancer.create_date,
-                'domain_name': loadbalancer.domain_name,
-                'internet_line_type': loadbalancer.internet_line_type.code_name,
-                'load_balancer_instance_status_name': loadbalancer.load_balancer_instance_status_name,
-                'load_balancer_instance_status': loadbalancer.load_balancer_instance_status.code_name,
-                'load_balancer_instance_operation': loadbalancer.load_balancer_instance_operation.code_name,
-                'network_usage_type': loadbalancer.network_usage_type.code_name,
-                'is_http_keep_alive': loadbalancer.is_http_keep_alive,
-                'connection_timeout': loadbalancer.connection_timeout,
-                'certificate_name': loadbalancer.certificate_name,
-                'load_balancer_rule_list': load_balancer_rule_list,
-                'load_balanced_server_instance_list': load_balanced_server_instance_list
-            }
+                loadbalancer_data = {
+                    'load_balancer_instance_no': loadbalancer.load_balancer_instance_no,
+                    'virtual_ip': loadbalancer.virtual_ip,
+                    'load_balancer_algorithm_type': loadbalancer.load_balancer_algorithm_type.code_name,
+                    'load_balancer_description': loadbalancer.load_balancer_description,
+                    'create_date': loadbalancer.create_date,
+                    'domain_name': loadbalancer.domain_name,
+                    'internet_line_type': loadbalancer.internet_line_type.code_name,
+                    'load_balancer_instance_status_name': loadbalancer.load_balancer_instance_status_name,
+                    'load_balancer_instance_status': loadbalancer.load_balancer_instance_status.code_name,
+                    'load_balancer_instance_operation': loadbalancer.load_balancer_instance_operation.code_name,
+                    'network_usage_type': loadbalancer.network_usage_type.code_name,
+                    'is_http_keep_alive': loadbalancer.is_http_keep_alive,
+                    'connection_timeout': loadbalancer.connection_timeout,
+                    'certificate_name': loadbalancer.certificate_name,
+                    'load_balancer_rule_list': load_balancer_rule_list,
+                    'load_balanced_server_instance_list': load_balanced_server_instance_list
+                }
 
-            cloud_service = make_cloud_service(
-                name=load_balancer_name,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=loadbalancer_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            )
+                link = ""
+                resource_id = load_balancer_name
+                reference = self.get_reference(resource_id, link)
+
+                cloud_service = make_cloud_service(
+                    name=load_balancer_name,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    data=loadbalancer_data,
+                    reference=reference
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{loadbalancer.load_balancer_instance_no}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_load_balancer_rule_list(load_balancer_rule_list):
@@ -112,5 +112,3 @@ class LoadBalancerManager(ResourceManager):
             load_balanced_server_instance_list_info.append(info)
 
         return load_balanced_server_instance_list_info
-
-

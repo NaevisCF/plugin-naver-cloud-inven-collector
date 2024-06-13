@@ -1,4 +1,3 @@
-import logging
 from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.compute.server_connector import ServerConnector
@@ -12,19 +11,8 @@ class ServerManager(ResourceManager):
         self.cloud_service_type = "Server"
         self.metadata_path = "metadata/spaceone/compute/server.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type()
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -32,43 +20,50 @@ class ServerManager(ResourceManager):
             metadata_path=self.metadata_path,
             is_primary=True,
             is_major=True,
+            labels=["Compute", "Server"]
         )
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
+        result.append(cloud_service_type)
+        return result
 
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         server_connector = ServerConnector(secret_data=secret_data)
         server_instances = server_connector.list_server_instance()
         for server_instance in server_instances:
-            compute_data = self._get_compute_data(server_instance)
-            hardware_data = self._get_hardware_data(server_instance)
-            port_forwarding_rules_data = self._get_port_forwarding_rules_data(server_instance)
-            ip_data = self._get_ip_data(server_instance)
+            try:
+                compute_data = self._get_compute_data(server_instance)
+                hardware_data = self._get_hardware_data(server_instance)
+                port_forwarding_rules_data = self._get_port_forwarding_rules_data(server_instance)
+                ip_data = self._get_ip_data(server_instance)
 
-            server_data = {
-                'compute': compute_data,
-                'hardware': hardware_data,
-                'port_forwarding_rules': port_forwarding_rules_data,
-                'ip': ip_data
-            }
+                server_data = {
+                    'compute': compute_data,
+                    'hardware': hardware_data,
+                    'port_forwarding_rules': port_forwarding_rules_data,
+                    'ip': ip_data
+                }
 
-            cloud_service = make_cloud_service(
-                name=server_instance.server_name,
-                instance_type=server_instance.server_instance_type.code,
-                region_code=server_instance.region.region_name,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=server_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            )
+                cloud_service = make_cloud_service(
+                    name=server_instance.server_name,
+                    instance_type=server_instance.server_instance_type.code,
+                    region_code=server_instance.region.region_name,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    data=server_data,
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{server_instance.server_instance_no}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_compute_data(instance):

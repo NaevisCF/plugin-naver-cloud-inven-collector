@@ -1,4 +1,4 @@
-from ..base import ResourceManager
+from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.database.cloud_db_connector import CloudDBConnector
 
@@ -11,19 +11,8 @@ class CloudDBManager(ResourceManager):
         self.cloud_service_type = "Cloud DB"
         self.metadata_path = "metadata/spaceone/database/cloud_db.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type(options, secret_data)
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self, options, secret_data):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -32,61 +21,71 @@ class CloudDBManager(ResourceManager):
             is_primary=True,
             is_major=True,
         )
+        result.append(cloud_service_type)
+        return result
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
-
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         cloud_db_connector = CloudDBConnector(secret_data=secret_data)
         cloud_db_instances = cloud_db_connector.list_cloud_db_instance(options.get("db_kind_code", {}))
 
         for instance in cloud_db_instances:
-            cloud_db_service_name = instance.cloud_db_service_name
-            cloud_db_create_date = instance.create_date
-            zone = self._get_zone(instance.zone)
-            region = self._get_region(instance.region)
-            cloud_db_config_list = self._get_cloud_db_config_list(instance.cloud_db_config_list)
-            cloud_db_config_group_list = self._get_cloud_db_config_group_list(instance.cloud_db_config_group_list)
-            access_control_group_list = self._get_access_control_group_list(instance.access_control_group_list)
-            cloud_db_server_instance_list = self._get_cloud_db_server_instance_list(instance.cloud_db_server_instance_list)
+            try:
+                cloud_db_service_name = instance.cloud_db_service_name
+                cloud_db_create_date = instance.create_date
+                zone = self._get_zone(instance.zone)
+                region = self._get_region(instance.region)
+                cloud_db_config_list = self._get_cloud_db_config_list(instance.cloud_db_config_list)
+                cloud_db_config_group_list = self._get_cloud_db_config_group_list(instance.cloud_db_config_group_list)
+                access_control_group_list = self._get_access_control_group_list(instance.access_control_group_list)
+                cloud_db_server_instance_list = self._get_cloud_db_server_instance_list(instance.cloud_db_server_instance_list)
 
-            instance_data = {
-                'cloud_db_create_date': cloud_db_create_date,
-                'cloud_db_instance_no': instance.cloud_db_instance_no,
-                'db_kind_code': instance.db_kind_code,
-                'cpu_count': instance.cpu_count,
-                'engine_version': instance.engine_version,
-                'data_storage_type': instance.data_storage_type.code_name,
-                'license_code': instance.license_code,
-                'is_ha': instance.is_ha,
-                'cloud_db_port': instance.cloud_db_port,
-                'backup_time': instance.backup_time,
-                'backup_file_retention_period': instance.backup_file_retention_period,
-                'cloud_db_instance_status_name': instance.cloud_db_instance_status_name,
-                'zone': zone,
-                'region': region,
-                'cloud_db_config_list': cloud_db_config_list,
-                'cloud_db_config_group_list': cloud_db_config_group_list,
-                'access_control_group_list': access_control_group_list,
-                'cloud_db_server_instance_list': cloud_db_server_instance_list,
-            }
+                instance_data = {
+                    'cloud_db_create_date': cloud_db_create_date,
+                    'cloud_db_instance_no': instance.cloud_db_instance_no,
+                    'db_kind_code': instance.db_kind_code,
+                    'cpu_count': instance.cpu_count,
+                    'engine_version': instance.engine_version,
+                    'data_storage_type': instance.data_storage_type.code_name,
+                    'license_code': instance.license_code,
+                    'is_ha': instance.is_ha,
+                    'cloud_db_port': instance.cloud_db_port,
+                    'backup_time': instance.backup_time,
+                    'backup_file_retention_period': instance.backup_file_retention_period,
+                    'cloud_db_instance_status_name': instance.cloud_db_instance_status_name,
+                    'zone': zone,
+                    'region': region,
+                    'cloud_db_config_list': cloud_db_config_list,
+                    'cloud_db_config_group_list': cloud_db_config_group_list,
+                    'access_control_group_list': access_control_group_list,
+                    'cloud_db_server_instance_list': cloud_db_server_instance_list,
+                }
 
-            cloud_service = make_cloud_service(
-                name=cloud_db_service_name,
-                instance_type=instance.server_instance_type.code,
-                region_code=instance.region.region_code,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=instance_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["name", "reference.resource_id", "account", "provider"]],
-            )
+                link = ""
+                resource_id = instance.get('cloud_db_instance_no')
+                reference = self.get_reference(resource_id, link)
+
+                cloud_service = make_cloud_service(
+                    name=cloud_db_service_name,
+                    instance_type=instance.server_instance_type.code,
+                    region_code=instance.region.region_code,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    reference=reference,
+                    data=instance_data,
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{instance.cloud_db_instance_no}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_zone(zone):
