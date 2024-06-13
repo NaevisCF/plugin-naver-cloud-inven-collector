@@ -23,15 +23,11 @@ def collector_collect(params: dict):
     task_options = params.get("task_options")
     resource_type = task_options.get("resource_type")
 
-    print(params)
-
     if resource_type == "inventory.CloudService":
         services = task_options.get("services")
-        print(services)
         for service in services:
             results = ResourceManager().collect(options, secret_data, service)
             for result in results:
-                print(result)
                 yield result
 
 

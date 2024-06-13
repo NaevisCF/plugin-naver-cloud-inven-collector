@@ -11,19 +11,8 @@ class VServerManager(ResourceManager):
         self.cloud_service_type = "VServer"
         self.metadata_path = "metadata/spaceone/compute/vserver.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type()
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -31,47 +20,53 @@ class VServerManager(ResourceManager):
             metadata_path=self.metadata_path,
             is_primary=True,
             is_major=True,
+            labels=["Compute", "VServer"]
         )
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "group", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
+        result.append(cloud_service_type)
+        return result
 
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         vserver_connector = VServerConnector(secret_data=secret_data)
         server_instances = vserver_connector.list_server_instance()
         for server_instance in server_instances:
-            compute_data = self._get_compute_data(server_instance)
-            hardware_data = self._get_hardware_data(server_instance)
-            network_data = self._get_network_data(server_instance)
+            try:
+                compute_data = self._get_compute_data(server_instance)
+                hardware_data = self._get_hardware_data(server_instance)
+                network_data = self._get_network_data(server_instance)
 
-            server_data = {
-                'compute': compute_data,
-                'hardware': hardware_data,
-                'network': network_data
-            }
+                server_data = {
+                    'compute': compute_data,
+                    'hardware': hardware_data,
+                    'network': network_data
+                }
 
-            resource_id = server_data["compute"]["server_instance_no"]
-            link = server_data["compute"]["server_instance_no"]
-            reference = self.get_reference(resource_id, link)
+                resource_id = server_data["compute"]["server_instance_no"]
+                link = ""
+                reference = self.get_reference(resource_id, link)
 
-            cloud_service = make_cloud_service(
-                name=server_instance.server_name,
-                instance_type=server_instance.server_instance_type.code,
-                region_code=server_instance.region_code,
-                reference=reference,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                provider=self.provider,
-                data=server_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["cloud_service_type", "cloud_service_group", "reference.resource_id", "provider"]],
-                resource_type="inventory.CloudService"
-            )
+                cloud_service = make_cloud_service(
+                    name=server_instance.server_name,
+                    instance_type=server_instance.server_instance_type.code,
+                    region_code=server_instance.region_code,
+                    reference=reference,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    provider=self.provider,
+                    data=server_data,
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{server_instance.server_instance_no}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_compute_data(instance):

@@ -11,19 +11,8 @@ class VpcManager(ResourceManager):
         self.cloud_service_type = "vpc"
         self.metadata_path = "metadata/spaceone/networking/vpc.yaml"
 
-    def collect_resources(self, options, secret_data):
-        try:
-            yield from self.collect_cloud_service_type()
-            yield from self.collect_cloud_service(options, secret_data)
-        except Exception as e:
-            yield make_error_response(
-                error=e,
-                provider=self.provider,
-                cloud_service_group=self.cloud_service_group,
-                cloud_service_type=self.cloud_service_type,
-            )
-
-    def collect_cloud_service_type(self):
+    def create_cloud_service_type(self):
+        result = []
         cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
@@ -33,13 +22,10 @@ class VpcManager(ResourceManager):
             is_major=True,
         )
 
-        yield make_response(
-            cloud_service_type=cloud_service_type,
-            match_keys=[["name", "group", "provider"]],
-            resource_type="inventory.CloudServiceType",
-        )
+        result.append(cloud_service_type)
+        return result
 
-    def collect_cloud_service(self, options, secret_data):
+    def create_cloud_service(self, options, secret_data):
         vpc_connector = VpcConnector(secret_data=secret_data)
         vpc_list = vpc_connector.list_vpc()
         subnet_list = vpc_connector.list_subnet()
@@ -49,43 +35,52 @@ class VpcManager(ResourceManager):
         vpc_peering_list = vpc_connector.list_vpc_peering_instance()
 
         for vpc in vpc_list:
-            vpc_no = vpc.vpc_no
-            matched_subnet_list = self._get_matched_subnet_list(subnet_list, vpc_no)
-            matched_route_table_list = self._get_matched_route_table_list(route_table_list, vpc_no)
-            matched_network_acl_list = self._get_matched_network_acl_list(network_acl_list, vpc_no)
-            matched_nat_gateway_list = self._get_matched_nat_gateway_list(nat_gateway_list, vpc_no)
-            matched_vpc_peering_list = self._get_matched_vpc_peering_list(vpc_peering_list, vpc_no)
-            
-            vpc_data = {
-                'vpc_no': vpc_no,
-                'ipv4_cidr_block': vpc.ipv4_cidr_block,
-                'vpc_status': vpc.vpc_status.code,
-                'region_code': vpc.region_code,
-                'create_date': vpc.create_date,
-                'subnet_list': matched_subnet_list,
-                'vpc_peering_list': matched_vpc_peering_list,
-                'route_table_list': matched_route_table_list,
-                'nat_gateway_instance_list': matched_nat_gateway_list,
-                'network_acl_list': matched_network_acl_list
-            }
+            try:
+                vpc_no = vpc.vpc_no
+                matched_subnet_list = self._get_matched_subnet_list(subnet_list, vpc_no)
+                matched_route_table_list = self._get_matched_route_table_list(route_table_list, vpc_no)
+                matched_network_acl_list = self._get_matched_network_acl_list(network_acl_list, vpc_no)
+                matched_nat_gateway_list = self._get_matched_nat_gateway_list(nat_gateway_list, vpc_no)
+                matched_vpc_peering_list = self._get_matched_vpc_peering_list(vpc_peering_list, vpc_no)
 
-            resource_id = vpc_data["vpc_no"]
-            link = ""
-            reference = self.get_reference(resource_id, link)
+                vpc_data = {
+                    'vpc_no': vpc_no,
+                    'ipv4_cidr_block': vpc.ipv4_cidr_block,
+                    'vpc_status': vpc.vpc_status.code,
+                    'region_code': vpc.region_code,
+                    'create_date': vpc.create_date,
+                    'subnet_list': matched_subnet_list,
+                    'vpc_peering_list': matched_vpc_peering_list,
+                    'route_table_list': matched_route_table_list,
+                    'nat_gateway_instance_list': matched_nat_gateway_list,
+                    'network_acl_list': matched_network_acl_list
+                }
 
-            cloud_service = make_cloud_service(
-                name=vpc.vpc_name,
-                region_code=vpc.region_code,
-                cloud_service_type=self.cloud_service_type,
-                cloud_service_group=self.cloud_service_group,
-                reference=reference,
-                provider=self.provider,
-                data=vpc_data,
-            )
-            yield make_response(
-                cloud_service=cloud_service,
-                match_keys=[["cloud_service_type", "cloud_service_group", "reference.resource_id", "provider"]],
-            )
+                resource_id = vpc_data["vpc_no"]
+                link = ""
+                reference = self.get_reference(resource_id, link)
+
+                cloud_service = make_cloud_service(
+                    name=vpc.vpc_name,
+                    region_code=vpc.region_code,
+                    cloud_service_type=self.cloud_service_type,
+                    cloud_service_group=self.cloud_service_group,
+                    reference=reference,
+                    provider=self.provider,
+                    data=vpc_data,
+                )
+                yield cloud_service
+
+            except Exception as e:
+                _LOGGER.error(
+                    f'[list_instances] [{vpc.vpc_no}] {e}'
+                )
+                yield make_error_response(
+                    error=e,
+                    provider=self.provider,
+                    cloud_service_group=self.cloud_service_group,
+                    cloud_service_type=self.cloud_service_type,
+                )
 
     @staticmethod
     def _get_matched_subnet_list(subnet_list, vpc_no):

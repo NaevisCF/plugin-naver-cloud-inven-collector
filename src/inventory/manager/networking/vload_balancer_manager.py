@@ -1,7 +1,6 @@
 from ..base import ResourceManager, _LOGGER
 from spaceone.inventory.plugin.collector.lib import *
 from inventory.connector.networking.vload_balancer_connector import VLoadBalancerConnector
-from typing import List
 
 
 class VLoadBalancerManager(ResourceManager):
@@ -14,7 +13,7 @@ class VLoadBalancerManager(ResourceManager):
 
     def create_cloud_service_type(self):
         result = []
-        instance_cst_result = make_cloud_service_type(
+        cloud_service_type = make_cloud_service_type(
             name=self.cloud_service_type,
             group=self.cloud_service_group,
             provider=self.provider,
@@ -24,7 +23,7 @@ class VLoadBalancerManager(ResourceManager):
             service_code="NCloud_VloadBalancer",
             labels=["Networking", "VloadBalancer"]
         )
-        result.append(instance_cst_result)
+        result.append(cloud_service_type)
         return result
 
     def create_cloud_service(self, options, secret_data):
