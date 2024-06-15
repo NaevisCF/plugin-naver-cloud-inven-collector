@@ -1,4 +1,4 @@
-<h1 align="center">Naver Cloud Collector</h1>  
+<h1 align="center">Naver Cloud Collector 2.0</h1>  
 
 <br/>  
 <div align="center" style="display:flex;">  
